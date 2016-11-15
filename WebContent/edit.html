@@ -1,0 +1,390 @@
+﻿<!DOCTYPE html>
+<html>
+    <head>
+        <meta charset="utf-8">
+        <title>我的笔记</title>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <meta http-equiv="x-pjax-version" content="v173">
+        <link rel="apple-touch-icon-precomposed" sizes="144x144" href="ico/favico-144-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="114x114" href="ico/favico-114-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" sizes="72x72" href="ico/favico-72-precomposed.png">
+        <link rel="apple-touch-icon-precomposed" href="ico/favico-57-precomposed.png">
+        <link rel="shortcut icon" href="ico/favico.png">
+        <link rel="shortcut icon" href="ico/favico.ico">
+        <link rel="stylesheet" href="styles/icon.css"/>
+        <link rel="stylesheet" href="styles/main.css"/>
+		<!-- Google-Code代码高亮CSS -->
+        <link rel="stylesheet" href="styles/prettify.css"/>
+		<!-- Ueditor编辑器CSS -->
+		<link href="styles/umeditor.min.css" type="text/css" rel="stylesheet">
+	
+		<script type="text/javascript" 
+			src="scripts/jquery.min.js">
+		</script>
+		<script type="text/javascript" 
+			src="scripts/base.js">
+		</script>
+		<script type="text/javascript" src="scripts/cookie_util.js"></script>
+		<script type="text/javascript" src="scripts/book.js"></script>
+		<script type="text/javascript" src="scripts/note.js"></script>
+		<script type="text/javascript" src="scripts/alert.js"></script>
+     <script>
+   	  // 获取user id
+			var userId = getCookie("userId");
+			//alert(userId);
+     		if(userId==null){ //进入登录页面
+     			window.location.href="log_in.html";
+     		}else{
+     			// 继续执行本页面处理
+     			$(function(){
+     				// 加载笔记本列表
+     				loadUserBooks();
+     				//单击笔记本，加载笔记列表,此时选不出来li，因为上一个方法没执行完，没有列出li，可以在loadUserBooks();里指定 async:false
+     				// 但不用这个，因为后面如果再创建li，那么那个li就没有单击，就是说$("#book_ul li").click();对后续添加的li无效
+     				// 所以用动态绑定：可以对现有和未来匹配元素追加单击事件 on函数,前面是jQuery对象
+     				// $("#book_ul")是肯定存在的，可以选出来，找这个的未来加进来的元素
+     				//$("document").on("click","li",function() 范围大，不好，范围要精确定位，范围大容易事件绑定冲突，
+     					// li是动态元素，作为第二个参数，是选择器
+     					// 给 id 是book_ul的元素，现在和将来追加的li元素追加单击事件
+     				$("#book_ul").on("click","li",loadBookNotes);
+     				
+     				// 单击笔记加载笔记内容
+     				// 这里的li可能也是动态的，所以触发事件也用on
+     				$("#note_ul").on("click","li",loadNoteDetail);
+     				
+     				//更新笔记内容 Update
+     				$("#save_note").click(updateNote);
+     				// 点击+按钮弹出添加笔记本对话框
+     				
+     				$("#add_notebook").click(alertAddBook);
+     				 //关闭对话框
+     				$("#can").on("click",".cancle,.close",closeAlertWindow);
+     				 
+     				 // 添加笔记本,点创建button
+     				$("#can").on("click","#sure_addbook",sureAddBook);
+     				 
+     				// 点击+按钮弹出添加笔记对话框
+     				$("#add_note").click(alertAddNote);
+     				 
+     				//添加笔记，根据笔记本id
+     				$("#can").on("click","#sure_addnote",sureAddNote);
+     				 
+     				// 笔记菜单处理
+     				showNoteMenu();
+     				
+     				// 点击删除按钮弹出添加笔记对话框
+     				$("#note_ul").on("click",".btn_delete",alertDeleteNote);
+     				
+     				// 笔记菜单 --- 删除笔记
+					$("#can").on("click","#sure_deletenote",sureDeleteNote);
+     		
+     				 //点击移动笔记按钮弹出移动笔记对话框 ,在alertMoveNote 方法里写获取左面列出的book里表，输出倒移动笔记下拉选，
+     				 $("#note_ul").on("click",".btn_move",alertMoveNote);
+     						
+     				 //笔记菜单 ------转移笔记 
+     				 //点击确定按钮，移动笔记倒选中的笔记本
+     				 $("#can").on("click","#sure_movenote",sureMoveNote);
+     				 
+     				 // 笔记菜单 -------分享笔记 
+     				 $("#note_ul").on("click",".btn_share",sureShareNote);
+     				 
+     				 //回收站 ----  显示已删除的笔记  rollback_button 
+     				 $("#rollback_button").click(showDeletedNote);
+
+     				 // 首先双击弹出改名对话框
+     				  $("#book_ul").on("dblclick","li",alertRenameBook);
+     				 
+     				 //双击笔记本名，改名
+     				 $("#can").on("click","#sure_renamebook",sureRenameBook);
+     				 
+     				 //搜索已分享的笔记 keyup 可以获取最新输入的单词
+     				 $("#search_note").keydown(sureSearchShareNote);
+     				 
+     				 // 点击搜索到的笔记，显示笔记内容
+     				 $("#share_ul").on("click","li",sureViewShareNote);
+     				 
+     				 //选中删除的笔记，显示内容
+     				// $("#deleted_note li")
+     			});
+			}
+     
+     </script>
+		
+    </head>
+    <body class="animated fadeIn">
+        <header class="header">
+            <div class="header-brand">
+                <a data-pjax=".content-body" href="edit.html">
+                    <img class="brand-logo" src="images/dummy/8986f28e.stilearn-logo.png" alt="Stilearn Admin Sample Logo">
+                </a>
+            </div>
+            <div class="header-profile">
+                <div class="profile-nav">
+                    <span class="profile-username"></span>
+                    <a  class="dropdown-toggle" data-toggle="dropdown">
+                        <span class="fa fa-angle-down"></span>
+                    </a>
+                    <ul class="dropdown-menu animated flipInX pull-right" role="menu">
+                        <li><a href="Change_password.html"><i class="fa fa-user"></i> 修改密码</a></li>
+                        <li class="divider"></li>
+                        <li><a id="logout" href="#" ><i class="fa fa-sign-out"></i> 退出登录</a></li>
+                    </ul>
+                </div>
+            </div>
+            <form class="form-inline" onsubmit="return false;">
+                <button type="button" class="btn btn-default btn-expand-search"><i class="fa fa-search"></i></button>
+                <div class="toggle-search">
+                    <input type="text" class="form-control" placeholder="搜索笔记" id='search_note'>
+                    <button type="button" class="btn btn-default btn-collapse-search"><i class="fa fa-times"></i></button>
+                </div>
+            </form>
+            <ul class="hidden-xs header-menu pull-right">
+                <li>
+                    <a href="activity.html" target='_blank' title="笔记活动">活动</a>
+                </li>
+            </ul>
+        </header>
+		<div class="row" style='padding:0;' id='center'>
+			<!-- alert_background-->
+			<div class="opacity_bg" style='display:none'></div>
+			<!-- alert_notebook -->
+			<div id="can"></div>
+			<div class="col-xs-2" style='padding:0;' id='pc_part_1'>
+				<!-- side-right -->
+				<div class="pc_top_first">
+					<h3>全部笔记本</h3>
+					<button type="button" class="btn btn-default btn-xs btn_plus" id='add_notebook'><i class="fa fa-plus"></i></button>
+				</div>
+				<aside class="side-right" id='first_side_right'>
+					<div class="module" data-toggle="niceScroll">
+						<div class="chat-contact">
+							<div class="contact-body">
+								<ul id="book_ul" class="contacts-list">
+									<!--  动态生成 li -->
+								</ul>
+							</div>
+						</div>
+					</div>
+				</aside>
+				<div class="row clear_margin">
+					<div class="col-xs-4 click" id='rollback_button' title='回收站'><i class='fa fa-trash-o' style='font-size:20px;line-height:31px;'></i></div>
+					<div class="col-xs-4 click" id='like_button' title='收藏笔记本'><i class='fa fa-star' style='font-size:20px;line-height:31px;'></i></div>
+					<div class="col-xs-4 click" id='action_button' title='参加活动笔记'><i class='fa fa-users' style='font-size:20px;line-height:30px;'></i></div>
+				</div>
+			</div>
+			<!-- 全部笔记本 -->
+			<!-- 全部笔记 -->
+			<div class="col-xs-3" style='padding:0;' id='pc_part_2'>
+				<div class="pc_top_second" id='notebookId'>
+					<h3>全部笔记</h3>
+					<button type="button" class="btn btn-default btn-xs btn_plus" id='add_note'><i class="fa fa-plus"></i></button>
+				</div>
+				<aside class="side-right" id='second_side_right'>
+					<div class="module" data-toggle="niceScroll">
+						<div class="chat-contact">
+							<div class="contact-body">
+								<ul id="note_ul" class="contacts-list">
+								<!--  动态生成 li -->
+								</ul>
+							</div>
+						</div>
+					</div>
+				</aside>
+			</div>
+			<!-- 全部笔记 -->
+			<!-- 回收站笔记 -->
+			<div class="col-xs-3" style='padding:0;display:none;' id='pc_part_4'>
+				<div class="pc_top_second">
+					<h3>回收站笔记</h3>
+				</div>
+				<aside class="side-right" id='four_side_right'>
+					<div class="module" data-toggle="niceScroll">
+						<div class="chat-contact">
+							<div class="contact-body">
+								<ul class="contacts-list" id="deleted_note">
+									<li class="disable"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i> 虚假回收站笔记<button type="button" class="btn btn-default btn-xs btn_position btn_delete"><i class="fa fa-times"></i></button><button type="button" class="btn btn-default btn-xs btn_position_2 btn_replay"><i class="fa fa-reply"></i></button></a></li>
+								</ul>
+							</div>
+						</div>
+					</div>
+				</aside>
+			</div>
+			<!-- 回收站笔记 -->
+			<!-- 搜索笔记列表 -->
+			<div class="col-xs-3" style='padding:0;display:none;' id='pc_part_6'>
+				<div class="pc_top_second">
+					<h3>搜索结果</h3>
+				</div>
+				<aside class="side-right" id='sixth_side_right'>
+					<div class="module" data-toggle="niceScroll">
+						<div class="chat-contact">
+							<div class="contact-body">
+								<ul id="share_ul" class="contacts-list">
+								</ul>
+							</div>
+						</div>
+						<div id='more_note'>更多...</div>
+					</div>
+				</aside>
+			</div>
+			<!-- 搜索笔记列表 -->
+			<!-- 收藏笔记列表 -->
+			<div class="col-xs-3" style='padding:0;display:none;' id='pc_part_7'>
+				<div class="pc_top_second">
+					<h3>已收藏笔记</h3>
+				</div>
+				<aside class="side-right" id='seventh_side_right'>
+					<div class="module" data-toggle="niceScroll">
+						<div class="chat-contact">
+							<div class="contact-body">
+								<ul class="contacts-list">
+									<!--li class="idle"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i> switch多分支结构<button type="button" class="btn btn-default btn-xs btn_position btn_delete"><i class="fa fa-times"></i></button></a></li-->
+								</ul>
+							</div>
+						</div>
+					</div>
+				</aside>
+			</div>
+			<!-- 收藏笔记列表 -->
+			<!-- 参加活动的笔记列表 -->
+			<div class="col-xs-3" style='padding:0;display:none;' id='pc_part_8'>
+				<div class="pc_top_second">
+					<h3>参加活动的笔记</h3>
+				</div>
+				<aside class="side-right" id='eighth_side_right'>
+					<div class="module" data-toggle="niceScroll">
+						<div class="chat-contact">
+							<div class="contact-body">
+								<ul class="contacts-list">
+									<!--li class="offline"><a ><i class="fa fa-file-text-o" title="online" rel="tooltip-bottom"></i> 样式用例（点击无效）</a></li-->
+								</ul>
+							</div>
+						</div>
+					</div>
+				</aside>
+			</div>
+			<!-- 参加活动的笔记列表 -->
+			<!-- 编辑笔记 -->
+			<div class="col-sm-7" id='pc_part_3'>
+				<!-- side-right -->
+				<div class="pc_top_third">
+					<div class="row">
+						<div class="col-xs-9">
+							<h3>编辑笔记</h3>
+						</div>
+						<div class="col-xs-3" id="savebutton_div">
+							<button type="button" class="btn btn-block btn-sm btn-primary" id='save_note'>保存笔记</button>
+						</div>
+					</div>
+				</div>
+				<aside class="side-right" id='third_side_right'>
+					<div class="module" data-toggle="niceScroll">
+						<div class="chat-contact">
+							<div class="contact-body clear_margin">
+								<!--- 笔记标题 --->
+								<div class="row" >
+									<div class="col-xs-8">
+										<input type="text" class="form-control" id="input_note_title" placeholder='笔记标题...'>
+									</div>
+								</div>
+								<!--- 笔记标题 --->
+								<div class="row">
+									<div class="col-sm-12">
+										<!--- 输入框 --->
+										<script type="text/plain" id="myEditor" style="width:100%;height:400px;">
+										</script>
+										<!--- 输入框 --->
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</aside>
+			</div>
+			<!-- 编辑笔记 -->
+			<!-- 预览笔记 -->
+			<div class="col-sm-7" id='pc_part_5' style='display:none;' >
+				<div class="pc_top_third">
+					<div class="row">
+						<div class="col-xs-9">
+							<h3>预览笔记</h3>
+						</div>
+					</div>
+				</div>
+				<aside class="side-right" id='fifth_side_right'>
+					<div class="module" data-toggle="niceScroll">
+						<div class="chat-contact">
+							<div class="contact-body clear_margin">
+								<h4 id="noput_note_title"></h4>
+								<p id="noput_note_body">
+								</p>
+							</div>
+						</div>
+					</div>
+				</aside>
+			</div>
+			<!-- 预览笔记 -->
+		</div>
+        <footer>
+            <p>&copy; 2014 Stilearning</p>
+			<div style='position:absolute;top:5PX;height:30px;right:20px;line-height:26px;border:1px solid #0E7D76;display:none;background:#fff'>
+				<strong style='color:#0E7D76;margin:0 10px;'></strong>
+			</div>
+        </footer>
+		<script type="text/javascript">
+			//加载DOM之后处理页面高度
+			function get_dom(e){
+				return document.getElementById(e);
+			}
+			function set_height(){
+				var pc_height=window.innerHeight;
+				pc_height=pc_height-132;
+				get_dom('first_side_right').style.height=(pc_height-31)+'px';
+				get_dom('second_side_right').style.height=pc_height+'px';
+				get_dom('four_side_right').style.height=pc_height+'px';
+				get_dom('sixth_side_right').style.height=pc_height+'px';
+				get_dom('seventh_side_right').style.height=pc_height+'px';
+				get_dom('eighth_side_right').style.height=pc_height+'px';
+				get_dom('third_side_right').style.height=(pc_height-15)+'px';
+				get_dom('fifth_side_right').style.height=(pc_height-15)+'px';
+			}
+			function myEditorWidth(){
+				var dom=get_dom('third_side_right');
+				var style=dom.currentStyle||window.getComputedStyle(dom, null);
+				get_dom('myEditor').style.width=style.width;
+			}
+			set_height();
+			//改变窗口大小时调整页面尺寸
+			window.onresize=function(){
+				set_height();
+				var width=$('#third_side_right').width()-35;
+				$('.edui-container,.edui-editor-body').width(width);
+				$('#myEditor').width(width-20);
+			};
+		</script>
+        <script type="text/javascript" src="scripts/jquery.min.js"></script>
+
+		<!-- Bootstrap框架JS -->
+        <script src="scripts/bootstrap.min.js"></script>
+        <script src="scripts/js-prototype.js"></script>       
+        <script src="scripts/theme-setup.js"></script>
+		<!-- Google-Code代码高亮JS -->
+        <script class="re-execute" src="scripts/run_prettify.js"></script>
+		<!-- Ueditor编辑器JS -->
+		<script type="text/javascript" charset="utf-8" src="scripts/ue/umeditor.config.js"></script>
+		<script type="text/javascript" charset="utf-8" src="scripts/ue/umeditor.min.js"></script>
+		<script type="text/javascript" src="scripts/ue/lang/zh-cn.js"></script>
+		
+		<script type="text/javascript">
+			//重写JS原生alert函数
+				window.alert=function(e){
+					$('#can').load('./alert/alert_error.html',function(){
+						$('#error_info').text(' '+e);
+						$('.opacity_bg').show();
+					});
+				}
+			//实例化Ueditor编辑器
+			var um = UM.getEditor('myEditor');
+		</script>
+		</body>		
+</html>

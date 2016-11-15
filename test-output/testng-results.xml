@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testng-results skipped="0" failed="0" total="2" passed="2">
+  <reporter-output>
+  </reporter-output>
+  <suite name="Default suite" duration-ms="297" started-at="2016-11-12T09:49:00Z" finished-at="2016-11-12T09:49:01Z">
+    <groups>
+    </groups>
+    <test name="Default test" duration-ms="297" started-at="2016-11-12T09:49:00Z" finished-at="2016-11-12T09:49:01Z">
+      <class name="day03.TestNGLearn1">
+        <test-method status="PASS" signature="beforeTest()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="beforeTest" is-config="true" duration-ms="83" started-at="2016-11-12T17:49:00Z" finished-at="2016-11-12T17:49:00Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeTest -->
+        <test-method status="PASS" signature="beforeClass()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="beforeClass" is-config="true" duration-ms="1" started-at="2016-11-12T17:49:00Z" finished-at="2016-11-12T17:49:00Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeClass -->
+        <test-method status="PASS" signature="beforeMethod()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="beforeMethod" is-config="true" duration-ms="1" started-at="2016-11-12T17:49:00Z" finished-at="2016-11-12T17:49:00Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeMethod -->
+        <test-method status="PASS" signature="TestNgLearn1()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="TestNgLearn1" duration-ms="27" started-at="2016-11-12T17:49:00Z" finished-at="2016-11-12T17:49:00Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TestNgLearn1 -->
+        <test-method status="PASS" signature="afterMethod()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="afterMethod" is-config="true" duration-ms="1" started-at="2016-11-12T17:49:00Z" finished-at="2016-11-12T17:49:00Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method status="PASS" signature="beforeMethod()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="beforeMethod" is-config="true" duration-ms="7" started-at="2016-11-12T17:49:00Z" finished-at="2016-11-12T17:49:00Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- beforeMethod -->
+        <test-method status="PASS" signature="TestNgLearn2()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="TestNgLearn2" duration-ms="31" started-at="2016-11-12T17:49:00Z" finished-at="2016-11-12T17:49:01Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- TestNgLearn2 -->
+        <test-method status="PASS" signature="afterMethod()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="afterMethod" is-config="true" duration-ms="3" started-at="2016-11-12T17:49:01Z" finished-at="2016-11-12T17:49:01Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterMethod -->
+        <test-method status="PASS" signature="afterClass()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="afterClass" is-config="true" duration-ms="7" started-at="2016-11-12T17:49:01Z" finished-at="2016-11-12T17:49:01Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterClass -->
+        <test-method status="PASS" signature="afterTest()[pri:0, instance:day03.TestNGLearn1@36c6e417]" name="afterTest" is-config="true" duration-ms="1" started-at="2016-11-12T17:49:01Z" finished-at="2016-11-12T17:49:01Z">
+          <reporter-output>
+          </reporter-output>
+        </test-method> <!-- afterTest -->
+      </class> <!-- day03.TestNGLearn1 -->
+    </test> <!-- Default test -->
+  </suite> <!-- Default suite -->
+</testng-results>
